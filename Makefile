@@ -15,7 +15,7 @@ DEPS = template.h
 # list of object files to compile, they will be placed in the $(ODIR) folder
 # matching .cpp files will be searched for below
 _OBJS = Core.o \
-        template.o  
+        template.o 
 OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
 
 # entry point, create folders, compile source files, and link the executable
