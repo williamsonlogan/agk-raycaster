@@ -18,7 +18,7 @@ int worldMap[mapWidth][mapHeight] =
 { 4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7 },
 { 4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7 },
 { 4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1 },
-{ 4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8 },
+{ 4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,0 },
 { 4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1 },
 { 4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8 },
 { 4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1 },
@@ -40,7 +40,7 @@ int worldMap[mapWidth][mapHeight] =
 void app::Begin(void)
 {
 	agk::SetVirtualResolution(screenWidth, screenHeight);
-	agk::SetWindowAllowResize(0);
+	//agk::SetWindowAllowResize(0);
 	agk::SetClearColor(0, 0, 0); // black
 	agk::SetSyncRate(60, 0); // target, gamers won't accept anything less
 	agk::SetFolder("media");
@@ -48,7 +48,7 @@ void app::Begin(void)
 
 	//buffer = PixelBuffer(screenWidth, screenHeight);
 
-	posX = 22, posY = 12;  //x and y start position
+	posX = 22, posY = 11.5;  //x and y start position
 	dirX = -1, dirY = 0; //initial direction vector
 	planeX = 0, planeY = 0.60; //the 2d raycaster version of camera plane
 
@@ -130,6 +130,8 @@ int app::Loop(void)
 			sideDistY = (mapY + 1.0f - posY) * deltaDistY;
 		}
 
+		bool clear = false;
+
 		// perform DDA
 		while (hit == 0)
 		{
@@ -148,6 +150,11 @@ int app::Loop(void)
 			}
 			// Check if ray has hit a wall
 			if (worldMap[mapX][mapY] > 0) hit = 1;
+			if ((mapY * mapWidth + mapX) >= (mapWidth * mapHeight))
+			{
+				clear = true;
+				hit = 1;
+			}
 		}
 
 		// Calculate distance projected on camera direction (Euclidean distance will give fisheye)
@@ -164,17 +171,20 @@ int app::Loop(void)
 		if (drawEnd >= screenHeight) drawEnd = screenHeight - 1;
 
 		// texturing calculations
-		int texNum = worldMap[mapX][mapY] - 1; // 1 subtracted from it so that texture - can be used!
+		int texNum = worldMap[mapX][mapY] - 1; // 1 subtracted from it so that texture 0 can be used
+
+		if (clear)
+			texNum = worldMap[mapWidth - 1][mapHeight - 1] - 1; // eventually set a "clear" texture to call here
 
 		// calculate value of wallX
 		float wallX; // where exactly the wall was hit
 		if (side == 0) wallX = posY + perpWallDist * rayDirY;
 		else
-			wallX = posX + perpWallDist * rayDirX;
+						wallX = posX + perpWallDist * rayDirX;
 		wallX -= std::floor((wallX));
 
 		//x coordinate on the texture
-		int texX = int(wallX * (float)texWidth);
+		int texX = (wallX * (float)texWidth);
 		if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
 		if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
 
@@ -183,13 +193,22 @@ int app::Loop(void)
 			int d = y * 256 - screenHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
 			// TODO: avoid the division to speed this up
 			int texY = ((d * texHeight) / lineHeight) / 256;
-			int color = texture[texNum][texHeight * texY + texX];
+			int color;
+			if (texY < 0 || texY >= texHeight)
+				color = texture[texNum][texHeight + texX];
+			else if(texX < 0 || texX >= texWidth)
+				color = texture[texNum][texWidth * texY + texWidth];
+			else
+				color = texture[texNum][texWidth * texY + texX];
 			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 			if (side == 1) color = (color >> 1) & 8355711;
-			buffer.Poke(x, y, color);
+			if (y >= 0 && y < screenHeight)
+				buffer.Poke(x, y, color);
+			else
+				buffer.Poke(x, screenHeight - 1, color);
 		}
 	}
-	agk::SaveImage(buffer.getImage(), "C:\frame.jpg");
+	//agk::SaveImage(buffer.getImage(), "C:\frame.jpg");
 
 	buffer.Draw();
 
