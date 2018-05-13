@@ -68,3 +68,10 @@ Final/wolfyengine.rar
 Debug64/Template64.Build.CppClean.log
 Core.cpp
 Core.cpp
+*.sln
+*.db-wal
+*.db-shm
+*.db
+*.ipch
+*.opendb
+.vs/AGKRaycaster/v15/.suo
