@@ -54,7 +54,6 @@ class app
     float time;
     float oldTime;
 
-    PixelBuffer buffer;
     std::vector<int> texture[8];
     std::vector<int> loadedTextures;
 };

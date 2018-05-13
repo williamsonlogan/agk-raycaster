@@ -7,6 +7,7 @@ class PixelBuffer
     PixelBuffer();
     PixelBuffer(int width, int height)
     {
+      printf("Constructing buffer");
       _id = agk::CreateMemblock(12 + width * height * 4);
       _width = width;
       _height = height;

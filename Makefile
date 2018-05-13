@@ -7,7 +7,7 @@ INC = -I../../common/include -I../../common -I../interpreter -I../../bullet -I..
 CFLAGS = -O2
 LDFLAGS32 = -L../../platform/linux/Lib/Release32
 LDFLAGS64 = -L../../platform/linux/Lib/Release64
-LDFLAGS = $(LDFLAGS$(ARCH)) -static-libstdc++ -static-libgcc -no-pie
+LDFLAGS = $(LDFLAGS$(ARCH)) -static-libstdc++ -static-libgcc -no-pie -g
 
 # list of dependencies so that changes to these files cause a rebuild of source files
 DEPS = template.h

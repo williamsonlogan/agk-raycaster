@@ -46,7 +46,7 @@ void app::Begin(void)
   agk::SetFolder("media");
   agk::SetDefaultMagFilter(0);
 
-  buffer = PixelBuffer(screenWidth, screenHeight);
+  //buffer = PixelBuffer(screenWidth, screenHeight);
 
   posX = 22, posY = 12;  //x and y start position
 	dirX = -1, dirY = 0; //initial direction vector
@@ -79,7 +79,9 @@ void app::Begin(void)
 int app::Loop (void)
 {
 	agk::Print((int)std::ceil(agk::ScreenFPS()));
-	
+
+  PixelBuffer buffer(screenWidth, screenHeight);
+
   for (int x = 0; x < screenWidth; x++)
   {
     // calculate ray position and direction
@@ -106,7 +108,7 @@ int app::Loop (void)
 
     int hit = 0; // was the wall hit?
     int side; // was a NS or a EW wall hit?
-
+    printf("made it sorta");
     // calculate step and initial sideDist
     if (rayDirX < 0)
     {
