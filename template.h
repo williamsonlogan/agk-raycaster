@@ -2,7 +2,12 @@
 #define _H_AGKTEMPLATE_
 
 // Link to AGK files
+// _WIN32 = we're in windows
+#ifdef _WIN32
+#include "AGK.h"
+#else
 #include "agk.h"
+#endif
 
 // libraries
 #include <string>

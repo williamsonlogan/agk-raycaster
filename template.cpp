@@ -39,22 +39,22 @@ int worldMap[mapWidth][mapHeight] =
 
 void app::Begin(void)
 {
-	agk::SetVirtualResolution (screenWidth, screenHeight);
-  agk::SetWindowAllowResize(0);
-  agk::SetClearColor( 0,0,0 ); // black
-	agk::SetSyncRate(60,0); // target, gamers won't accept anything less
-  agk::SetFolder("media");
-  agk::SetDefaultMagFilter(0);
+	agk::SetVirtualResolution(screenWidth, screenHeight);
+	agk::SetWindowAllowResize(0);
+	agk::SetClearColor(0, 0, 0); // black
+	agk::SetSyncRate(60, 0); // target, gamers won't accept anything less
+	agk::SetFolder("media");
+	agk::SetDefaultMagFilter(0);
 
-  //buffer = PixelBuffer(screenWidth, screenHeight);
+	//buffer = PixelBuffer(screenWidth, screenHeight);
 
-  posX = 22, posY = 12;  //x and y start position
+	posX = 22, posY = 12;  //x and y start position
 	dirX = -1, dirY = 0; //initial direction vector
 	planeX = 0, planeY = 0.60; //the 2d raycaster version of camera plane
 
 	time = 0; //time of current frame
 	oldTime = 0; //time of previous frame
-;
+	;
 	//for (int i = 0; i < 8; i++) texture[i].resize(texWidth * texHeight);
 
 	loadedTextures.push_back(agk::LoadImage("eagle.png"));
@@ -69,73 +69,72 @@ void app::Begin(void)
 	for (int i = 0; i < loadedTextures.size(); i++)
 	{
 		int memblock = agk::CreateMemblockFromImage(loadedTextures[i]);
-		for (int j = 12; j < agk::GetMemblockSize(memblock) - 1; j+=4)
+		for (int j = 12; j < agk::GetMemblockSize(memblock) - 1; j += 4)
 		{
 			texture[i].push_back(agk::MakeColor(agk::GetMemblockInt(memblock, j), agk::GetMemblockInt(memblock, j + 1), agk::GetMemblockInt(memblock, j + 2)));
 		}
-  }
+	}
 }
 
-int app::Loop (void)
+int app::Loop(void)
 {
 	agk::Print((int)std::ceil(agk::ScreenFPS()));
 
-  PixelBuffer buffer(screenWidth, screenHeight);
+	PixelBuffer buffer(screenWidth, screenHeight);
 
-  for (int x = 0; x < screenWidth; x++)
-  {
-    // calculate ray position and direction
-    float cameraX = 2.0f * x / (float)screenWidth - 1; // x-coordinate in camera space
-    float rayDirX = dirX + planeX * cameraX;
-    float rayDirY = dirY + planeY * cameraX;
+	for (int x = 0; x < screenWidth; x++)
+	{
+		// calculate ray position and direction
+		float cameraX = 2.0f * x / (float)screenWidth - 1; // x-coordinate in camera space
+		float rayDirX = dirX + planeX * cameraX;
+		float rayDirY = dirY + planeY * cameraX;
 
-    // which box of the map we're in
-    int mapX = (int)posX;
-    int mapY = (int)posY;
+		// which box of the map we're in
+		int mapX = (int)posX;
+		int mapY = (int)posY;
 
-    // length of ray from current position to next x or y-side
-    float sideDistX;
-    float sideDistY;
+		// length of ray from current position to next x or y-side
+		float sideDistX;
+		float sideDistY;
 
-    // length of ray from one x or y-side to next x or y-side
-    float deltaDistX = std::abs(1 / rayDirX);
-    float deltaDistY = std::abs(1 / rayDirY);
-    float perpWallDist;
+		// length of ray from one x or y-side to next x or y-side
+		float deltaDistX = std::abs(1 / rayDirX);
+		float deltaDistY = std::abs(1 / rayDirY);
+		float perpWallDist;
 
-    // what direction to step in (+1 or -1)
-    int stepX;
-    int stepY;
+		// what direction to step in (+1 or -1)
+		int stepX;
+		int stepY;
 
-    int hit = 0; // was the wall hit?
-    int side; // was a NS or a EW wall hit?
-    printf("made it sorta");
-    // calculate step and initial sideDist
-    if (rayDirX < 0)
-    {
-      stepX = -1;
-      sideDistX = (posX - mapX) * deltaDistX;
-    }
-    else
-    {
-      stepX = 1;
-      sideDistX = (mapX + 1.0f - posX) * deltaDistX;
-    }
-    if (rayDirY < 0)
-    {
-      stepY = -1;
-      sideDistY = (posY - mapY) * deltaDistY;
-    }
-    else
-    {
-      stepY = 1;
-      sideDistY = (mapY + 1.0f - posY) * deltaDistY;
-    }
+		int hit = 0; // was the wall hit?
+		int side; // was a NS or a EW wall hit?
+		// calculate step and initial sideDist
+		if (rayDirX < 0)
+		{
+			stepX = -1;
+			sideDistX = (posX - mapX) * deltaDistX;
+		}
+		else
+		{
+			stepX = 1;
+			sideDistX = (mapX + 1.0f - posX) * deltaDistX;
+		}
+		if (rayDirY < 0)
+		{
+			stepY = -1;
+			sideDistY = (posY - mapY) * deltaDistY;
+		}
+		else
+		{
+			stepY = 1;
+			sideDistY = (mapY + 1.0f - posY) * deltaDistY;
+		}
 
-    // perform DDA
-    while (hit == 0)
-    {
-      // jump to next map square, OR in x direction, OR in y direction
-      if (sideDistX < sideDistY)
+		// perform DDA
+		while (hit == 0)
+		{
+			// jump to next map square, OR in x direction, OR in y direction
+			if (sideDistX < sideDistY)
 			{
 				sideDistX += deltaDistX;
 				mapX += stepX;
@@ -148,38 +147,38 @@ int app::Loop (void)
 				side = 1;
 			}
 			// Check if ray has hit a wall
-      if (worldMap[mapX][mapY] > 0) hit = 1;
-    }
+			if (worldMap[mapX][mapY] > 0) hit = 1;
+		}
 
-    // Calculate distance projected on camera direction (Euclidean distance will give fisheye)
-    if (side == 0) perpWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
-    else perpWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
-    
-    // Calculate height of line to draw on screen
-    int lineHeight = (int)(screenHeight / perpWallDist);
+		// Calculate distance projected on camera direction (Euclidean distance will give fisheye)
+		if (side == 0) perpWallDist = (mapX - posX + (1 - stepX) / 2) / rayDirX;
+		else perpWallDist = (mapY - posY + (1 - stepY) / 2) / rayDirY;
 
-    // Calculate lowest and highest pixel to fill in current stripe
-    int drawStart = -lineHeight / 2 + screenHeight / 2;
-    if (drawStart < 0) drawStart = 0;
-    int drawEnd = lineHeight / 2 + screenHeight / 2;
-    if (drawEnd >= screenHeight) drawEnd = screenHeight - 1;
+		// Calculate height of line to draw on screen
+		int lineHeight = (int)(screenHeight / perpWallDist);
 
-    // texturing calculations
-    int texNum = worldMap[mapX][mapY] - 1; // 1 subtracted from it so that texture - can be used!
+		// Calculate lowest and highest pixel to fill in current stripe
+		int drawStart = -lineHeight / 2 + screenHeight / 2;
+		if (drawStart < 0) drawStart = 0;
+		int drawEnd = lineHeight / 2 + screenHeight / 2;
+		if (drawEnd >= screenHeight) drawEnd = screenHeight - 1;
 
-    // calculate value of wallX
-    float wallX; // where exactly the wall was hit
-    if (side == 0) wallX = posY + perpWallDist * rayDirY;
-    else
-                   wallX = posX + perpWallDist * rayDirX;
-    wallX -= std::floor((wallX));
+		// texturing calculations
+		int texNum = worldMap[mapX][mapY] - 1; // 1 subtracted from it so that texture - can be used!
 
-    //x coordinate on the texture
+		// calculate value of wallX
+		float wallX; // where exactly the wall was hit
+		if (side == 0) wallX = posY + perpWallDist * rayDirY;
+		else
+			wallX = posX + perpWallDist * rayDirX;
+		wallX -= std::floor((wallX));
+
+		//x coordinate on the texture
 		int texX = int(wallX * (float)texWidth);
 		if (side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
-    if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+		if (side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
 
-    for (int y = drawStart; y<drawEnd; y++)
+		for (int y = drawStart; y < drawEnd; y++)
 		{
 			int d = y * 256 - screenHeight * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
 			// TODO: avoid the division to speed this up
@@ -188,18 +187,19 @@ int app::Loop (void)
 			//make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 			if (side == 1) color = (color >> 1) & 8355711;
 			buffer.Poke(x, y, color);
-    }
-  }
+		}
+	}
+	agk::SaveImage(buffer.getImage(), "C:\frame.jpg");
 
-  buffer.Draw();
+	buffer.Draw();
 
-  agk::Sync();
+	agk::Sync();
 
-  //speed modifiers
+	//speed modifiers
 	double moveSpeed = agk::GetFrameTime() * 3.0; //the constant value is in squares/second
-  double rotSpeed = agk::GetFrameTime() * 3.0; //the constant value is in radians/second
+	double rotSpeed = agk::GetFrameTime() * 3.0; //the constant value is in radians/second
 
-  //move forward if no wall in front of you
+	//move forward if no wall in front of you
 	if (agk::GetRawKeyState(87))
 	{
 		if (worldMap[int(posX + dirX * moveSpeed)][int(posY)] == false) posX += dirX * moveSpeed;
@@ -238,7 +238,7 @@ int app::Loop (void)
 }
 
 
-void app::End (void)
+void app::End(void)
 {
 
 }

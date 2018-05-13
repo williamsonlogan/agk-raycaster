@@ -7,10 +7,12 @@ class PixelBuffer
     PixelBuffer();
     PixelBuffer(int width, int height)
     {
-      printf("Constructing buffer");
       _id = agk::CreateMemblock(12 + width * height * 4);
       _width = width;
       _height = height;
+	  agk::SetMemblockInt(_id, 0, _width); //writing starts with offset 0
+	  agk::SetMemblockInt(_id, 4, _height); //integer of width took 4 bytes, so offset by 4
+	  agk::SetMemblockInt(_id, 8, 32); //bit depth, must be 32. also offset by another 4
       _image = agk::CreateImageFromMemblock(_id);
       _sprite = agk::CreateSprite(_image);
     }
@@ -32,12 +34,10 @@ class PixelBuffer
 
     void Draw()
     {
-      agk::SetMemblockInt(_id, 0, _width); //writing starts with offset 0
-      agk::SetMemblockInt(_id, 4, _height); //integer of width took 4 bytes, so offset by 4
-      agk::SetMemblockInt(_id, 8, 32); //bit depth, must be 32. also offset by another 4
       agk::CreateImageFromMemblock(_image, _id);
       agk::SetSpriteImage(_sprite, _image);
       agk::SetSpritePosition(_sprite, 0, 0);
+	  agk::SetSpriteSize(_sprite, _width, _height);
     }
 
     void Poke(int x, int y, int r, int g, int b)
